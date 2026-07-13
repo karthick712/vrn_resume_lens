@@ -1,9 +1,8 @@
-
 import streamlit as st
 import os 
 from PIL import Image
-from langchain_docling import DoclingLoader
-from langchain_docling.loader import ExportType
+from pypdf import PdfReader
+from docx import Document
 from schema import Profile
 from config import settings
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -11,6 +10,18 @@ import pandas as pd
 from dotenv import load_dotenv
 
 load_dotenv()
+
+
+def extract_text_from_file(file_path):
+    """Extract raw text from a PDF or DOCX file without torch/OCR."""
+    if file_path.lower().endswith(".pdf"):
+        reader = PdfReader(file_path)
+        return "\n".join(page.extract_text() or "" for page in reader.pages)
+    elif file_path.lower().endswith(".docx"):
+        doc = Document(file_path)
+        return "\n".join(p.text for p in doc.paragraphs)
+    else:
+        raise ValueError("Unsupported file type. Please upload a PDF or DOCX file.")
 
 icon = Image.open("logo.png")
 
@@ -99,19 +110,7 @@ with tab1:
                     f.write(uploaded_file.read())
                 
                 
-                # loader = DoclingLoader(file_path=temp_path, export_type=ExportType.MARKDOWN)
-                st.write("✅ Before creating loader")
-                loader = DoclingLoader(
-                    file_path=temp_path,
-                 
-                    export_type=ExportType.MARKDOWN
-                )
-                st.write("✅ Before loader.load()")
-
-                docs = loader.load()
-                st.write("✅ After loader.load()")
-                resume_text = docs[0].page_content
-               
+                resume_text = extract_text_from_file(temp_path)
 
 
             with st.spinner("Generating Insights..."):
@@ -411,10 +410,3 @@ with tab2:
 
 #                 st.success("Your data has been submitted successfully.")
 #                 st.rerun()
-
-
-
-
-
-
-
