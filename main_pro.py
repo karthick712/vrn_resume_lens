@@ -100,14 +100,16 @@ with tab1:
                 
                 
                 # loader = DoclingLoader(file_path=temp_path, export_type=ExportType.MARKDOWN)
+                st.write("✅ Before creating loader")
                 loader = DoclingLoader(
                     file_path=temp_path,
                  
                     export_type=ExportType.MARKDOWN
                 )
-                
+                st.write("✅ Before loader.load()")
 
                 docs = loader.load()
+                st.write("✅ After loader.load()")
                 resume_text = docs[0].page_content
                
 
